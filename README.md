@@ -183,8 +183,8 @@ Root/
 ├── week4_soln (basic_queries).txt
 ├── week5_solution (advanced_queries_and_views).txt
 ├── week6_soln (Built-in Functions).txt
-├── week7_soln (PL/SQL Cursors and Exception Handling).txt
-├── week8_soln (PL/SQL Stored Procedures and Functions).txt
-├── week9_soln (PL/SQL Triggers).txt
+├── week7_soln (PLSQL Cursors and Exception Handling).txt
+├── week8_soln (PLSQL Stored Procedures and Functions).txt
+├── week9_soln (PLSQL Triggers).txt
 
 
