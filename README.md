@@ -172,6 +172,19 @@ The following tables were created with appropriate constraints (Primary Key, For
 
 ---
 
-## 📁 Suggested GitHub Folder Structure
+## 📁 Folder Structure
+
+Root/
+├── README.md
+├── IV_BTech_labmanual_DBS_2025.docx.pdf
+├── week1_soln (create_tables).txt
+├── week2_soln (alter_tables).txt
+├── week3_soln (insert_update_delete).txt
+├── week4_soln (basic_queries).txt
+├── week5_solution (advanced_queries_and_views).txt
+├── week6_soln (Built-in Functions).txt
+├── week7_soln (PL/SQL Cursors and Exception Handling).txt
+├── week8_soln (PL/SQL Stored Procedures and Functions).txt
+├── week9_soln (PL/SQL Triggers).txt
 
 
