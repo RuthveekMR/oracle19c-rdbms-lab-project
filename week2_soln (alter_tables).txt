@@ -1,0 +1,133 @@
+2.1
+ALTER TABLE EMP
+ADD REPORTS_TO CONSTRAINT FK_REPORTS_TO_EMPCODE references EMP;
+
+SQL> DESCRIBE EMP;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ EMPCODE                                   NOT NULL NUMBER(3)
+ NAME                                               VARCHAR2(10)
+ QUALIFICATION                                      VARCHAR2(7)
+ PHONE                                              NUMBER(10)
+ EMAIL                                              VARCHAR2(20)
+ DESIGNATION                                        VARCHAR2(20)
+ SALARY                                             NUMBER(7)
+ REPORTS_TO                                         NUMBER(3)
+
+2.2
+ALTER TABLE SKILL
+ADD CONSTRAINT CK_SKILLID_STARTS_WITH_S check(SKILLID LIKE 'S%');
+
+2.3
+ALTER TABLE EMP_SKILL
+ADD CONSTRAINT PK_EMPNO_SKILLID Primary Key(EMPNO,SKILLID);
+
+2.4
+ALTER TABLE PRJ_DETAILS
+ADD CONSTRAINT UNQ_PRJ_NAME Unique(PRJ_NAME);
+
+2.5
+ALTER TABLE CLIENT
+ADD EMAIL varchar2(35) CONSTRAINT VALID_EMAIL check(EMAIL LIKE '%@%.___');
+
+2.6
+ALTER TABLE EMP
+ADD CONSTRAINT UNQ_PHONE UNIQUE(PHONE);
+
+2.7
+ALTER TABLE EMP
+ADD CONSTRAINT UNQ_EMAIL UNIQUE(EMAIL);
+
+2.8
+SQL> SELECT CONSTRAINT_NAME,CONSTRAINT_TYPE,TABLE_NAME
+  2  FROM USER_CONSTRAINTS
+  3  WHERE TABLE_NAME='MEDICAL_POLICY';
+
+CONSTRAINT_NAME
+--------------------------------------------------------------------------------
+C
+-
+TABLE_NAME
+--------------------------------------------------------------------------------
+SYS_C007440
+R
+MEDICAL_POLICY
+
+SYS_C007437
+C
+MEDICAL_POLICY
+
+CONSTRAINT_NAME
+--------------------------------------------------------------------------------
+C
+-
+TABLE_NAME
+--------------------------------------------------------------------------------
+
+SYS_C007438
+C
+MEDICAL_POLICY
+
+SYS_C007439
+P
+
+CONSTRAINT_NAME
+--------------------------------------------------------------------------------
+C
+-
+TABLE_NAME
+--------------------------------------------------------------------------------
+MEDICAL_POLICY
+
+ALTER TABLE MEDICAL_POLICY
+DROP CONSTRAINT SYS_C007439;
+
+ALTER TABLE MEDICAL_POLICY
+ADD CONSTRAINT PK_EMPNO_POLICYNO_POLICYDATE Primary Key(EMPNO,POLICYNO,POLICYDATE);
+
+2.9
+SQL>SELECT CONSTRAINT_NAME,COLUMN_NAME
+FROM USER_CONS_COLUMN
+WHERE TABLE_NAME='MEDICAL_POLICY';
+
+CONSTRAINT_NAME
+--------------------------------------------------------------------------------
+COLUMN_NAME
+--------------------------------------------------------------------------------
+SYS_C007437
+POLICYNO
+
+PK_EMPNO_POLICYNO_POLICYDATE
+POLICYNO
+
+PK_EMPNO_POLICYNO_POLICYDATE
+POLICYDATE
+
+
+CONSTRAINT_NAME
+--------------------------------------------------------------------------------
+COLUMN_NAME
+--------------------------------------------------------------------------------
+SYS_C007440
+EMPNO
+
+PK_EMPNO_POLICYNO_POLICYDATE
+EMPNO
+
+CK_PREMIUM
+PREMIUM
+
+ALTER TABLE MEDICAL_POLICY
+DROP CONSTRAINT SYS_C007438;
+
+ALTER TABLE MEDICAL_POLICY
+ADD CONSTRAINT CK_PREMIUM check(PREMIUM>1000);
+
+(To correct the mistake while creating tables)
+ALTER TABLE FAMILY_DEPENDENTS
+DROP CONSTRAINT VALID_AGE;
+
+ALTER TABLE FAMILY_DEPENDENTS
+ADD CONSTRAINT VALID_AGE check(AGE>=1 AND AGE<=130);
+
+

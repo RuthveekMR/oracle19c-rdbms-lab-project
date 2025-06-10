@@ -1,0 +1,313 @@
+8.1
+SET SERVEROUTPUT ON
+CREATE OR REPLACE PROCEDURE account_balance(v_acc_num IN number,withdraw IN number,v_balance OUT number) IS
+BEGIN
+	SELECT balance INTO v_balance FROM account WHERE account_number=v_acc_num;
+	DBMS_OUTPUT.PUT_LINE('Current Balance: '||v_balance);
+	IF v_balance-withdraw>=1000 THEN
+		v_balance:=v_balance-withdraw;
+		DBMS_OUTPUT.PUT_LINE('Withdrawal of '||withdraw||' is Successful.');
+		UPDATE account SET balance=v_balance WHERE account_number=v_acc_num;
+		COMMIT;
+	ELSE
+		DBMS_OUTPUT.PUT_LINE('Insufficient fund to withdraw, try with lesser withdrawal amount.');
+	END IF;
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+		DBMS_OUTPUT.PUT_LINE('No such Account Number found.');
+		v_balance:=NULL;
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('Unexpected errors: '||SQLERRM);
+			v_balance:=NULL;
+END account_balance;
+/
+
+Procedure created.
+
+SQL> var bal number;
+SQL> exec account_balance(1002,200,:bal);
+Current Balance: 2200
+Withdrawal of 200 is Successful.
+
+PL/SQL procedure successfully completed.
+
+SQL> print bal;
+
+       BAL
+----------
+      2000
+
+SQL> exec account_balance(1002,250,:bal);
+Current Balance: 2000
+Withdrawal of 250 is Successful.
+
+PL/SQL procedure successfully completed.
+
+SQL> print bal;
+
+       BAL
+----------
+      1750
+
+SQL> exec account_balance(1005,300,:bal);
+Current Balance: 1200
+Insufficient fund to withdraw, try with lesser withdrawal amount.
+
+PL/SQL procedure successfully completed.
+
+SQL> print bal;
+
+       BAL
+----------
+      1200
+
+SQL> exec account_balance(1010,300,:bal);
+No such Account Number found.
+
+PL/SQL procedure successfully completed.
+
+SQL> print bal;
+
+       BAL
+----------
+
+8.2
+SET SERVEROUTPUT ON
+CREATE OR REPLACE PROCEDURE project_marvel(s_skillname IN varchar2) IS
+ecode emp.empcode%TYPE;
+e_name emp.name%TYPE;
+CURSOR marvel(skill_exp number) IS SELECT e.empcode,e.name FROM emp e JOIN emp_skill e_s ON e.empcode=e_s.empno JOIN skill s ON e_s.skillid=s.skillid 
+WHERE (s.skillname=s_skillname) AND (e_s.skill_experience>=skill_exp);
+skill_match EXCEPTION;
+v_count number:=0;
+emp_count number:=0;
+BEGIN
+	SELECT COUNT(*) INTO v_count FROM skill WHERE skillname=s_skillname;
+	IF v_count=0 THEN
+		RAISE skill_match;
+	END IF;
+	OPEN marvel(12);
+	LOOP
+		FETCH marvel INTO ecode,e_name;
+		EXIT WHEN marvel%NOTFOUND;
+		DBMS_OUTPUT.PUT_LINE('Employee Code: '||ecode);
+		DBMS_OUTPUT.PUT_LINE('Employee Name: '||e_name);
+		DBMS_OUTPUT.PUT_LINE('-----------------------------');
+		emp_count:=emp_count+1;
+	END LOOP;
+	IF emp_count=0 THEN
+		RAISE NO_DATA_FOUND;
+	END IF;
+	CLOSE marvel;
+EXCEPTION
+	WHEN skill_match THEN
+		DBMS_OUTPUT.PUT_LINE('Incorrect Skillname Entered');
+	WHEN NO_DATA_FOUND THEN
+		DBMS_OUTPUT.PUT_LINE('No Matching Records Found');
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('Unexpected Error: '||SQLERRM);
+END;
+/
+
+Procedure created.
+
+SET SERVEROUTPUT ON
+DECLARE
+	skill_name skill.skillname%TYPE:='&skillname';
+BEGIN
+	project_marvel(skill_name);
+END;
+/
+
+
+Enter value for skillname: Full stack
+old   2: skill_name skill.skillname%TYPE:='&skillname';
+new   2: skill_name skill.skillname%TYPE:='Full stack';
+Employee Code: 100
+Employee Name: RAJESH
+-----------------------------
+Employee Code: 110
+Employee Name: BHASKAR
+-----------------------------
+
+PL/SQL procedure successfully completed.
+
+Enter value for skillname: IOS
+old   2: skill_name skill.skillname%TYPE:='&skillname';
+new   2: skill_name skill.skillname%TYPE:='IOS';
+No Matching Records Found
+
+PL/SQL procedure successfully completed.
+
+Enter value for skillname: ASKMC
+old   2: skill_name skill.skillname%TYPE:='&skillname';
+new   2: skill_name skill.skillname%TYPE:='ASKMC';
+Incorrect Skillname Entered
+
+PL/SQL procedure successfully completed.
+
+8.3
+SET SERVEROUTPUT ON
+CREATE OR REPLACE PROCEDURE additional_budget(pid IN varchar2,add_budget OUT number) IS
+v_prj prj_details%ROWTYPE;
+cost_per_day number:=0;
+BEGIN
+	SELECT * INTO v_prj FROM prj_details WHERE prjid=pid;
+	cost_per_day:=v_prj.budget_allocated/(v_prj.end_date-v_prj.start_date);
+	add_budget:=(v_prj.actual_end_date-v_prj.end_date)*cost_per_day;
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+		add_budget:=NULL;
+		DBMS_OUTPUT.PUT_LINE('Invalid Project ID Entered.');
+	WHEN ZERO_DIVIDE THEN
+		add_budget:=NULL;
+		DBMS_OUTPUT.PUT_LINE('actual_end_date and end_date are Equal - Cannot Divide by Zero.');
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('Unexpected Error: '||SQLERRM);
+END;
+/
+Procedure created.
+
+SET SERVEROUTPUT ON
+DECLARE
+	pl_name emp.name%TYPE;
+	rep_name emp.name%TYPE;
+	rep_email emp.email%TYPE;
+	add_budget number:=0;
+	pid prj_details.prjid%TYPE:='&project_id';
+BEGIN
+	SELECT pl.name, rep.name, rep.email INTO pl_name, rep_name, rep_email FROM prj_details p
+	JOIN emp pl ON p.lead_by_emp_code = pl.empcode
+	JOIN emp rep ON pl.reports_to = rep.empcode
+	WHERE p.prjid = pid;
+	DBMS_OUTPUT.PUT_LINE('Name of Project Leader: '||pl_name);
+	DBMS_OUTPUT.PUT_LINE('Name of Employee to whom Project leader reports to: '||rep_name);
+	DBMS_OUTPUT.PUT_LINE('Email of Employee to whom Project leader reports to: '||rep_email);
+	additional_budget(pid,add_budget);
+	DBMS_OUTPUT.PUT_LINE('Additional Budget Needed: '||add_budget);
+END;
+/
+Enter value for project_id: P4
+old   7: pid prj_details.prjid%TYPE:='&project_id';
+new   7: pid prj_details.prjid%TYPE:='P4';
+Name of Project Leader: BHASKAR
+Name of Employee to whom Project leader reports to: PRASAD
+Email of Employee to whom Project leader reports to: prasad@digisol.com
+Additional Budget Needed: 2532119.91434689507494646680942184154176
+
+PL/SQL procedure successfully completed.
+
+8.4
+CREATE OR REPLACE FUNCTION compute_incentive(pid IN varchar2,emp_id IN number)
+RETURN number IS
+w_rating work_exp.rating%TYPE;
+inc number:=0;
+BEGIN
+	SELECT rating INTO w_rating FROM work_exp WHERE prjid=pid AND empcode=emp_id;
+	IF w_rating='A' THEN
+		inc:=30000;
+	ELSIF w_rating='B' THEN
+		inc:=20000;
+	ELSIF w_rating='C' THEN
+		inc:=10000;
+	END IF;
+	RETURN inc;
+END;
+/
+
+Function created.
+
+SET SERVEROUTPUT ON
+DECLARE
+	pid work_exp.prjid%TYPE:='&project_id';
+	CURSOR select_employees IS SELECT empcode FROM work_exp WHERE prjid=pid;
+BEGIN
+	FOR i IN select_employees
+	LOOP
+		DBMS_OUTPUT.PUT_LINE('Employee Code: '||i.empcode||'|Incentive: '||compute_incentive(pid,i.empcode));
+	END LOOP;
+END;
+/
+Enter value for project_id: P2
+old   2: pid work_exp.prjid%TYPE:='&project_id';
+new   2: pid work_exp.prjid%TYPE:='P2';
+Employee Code: 102|Incentive: 20000
+Employee Code: 105|Incentive: 20000
+Employee Code: 108|Incentive: 10000
+
+PL/SQL procedure successfully completed.
+
+8.5
+CREATE OR REPLACE FUNCTION country_code(ph_code IN varchar2,emp_id IN number)
+RETURN varchar2 IS
+e_name emp.name%TYPE;
+BEGIN
+	SELECT e.name INTO e_name FROM emp e JOIN work_exp w ON e.empcode=w.empcode JOIN client c ON w.clientid=c.clientid 
+	WHERE SUBSTR(c.phone,1,3)=ph_code AND e.empcode=emp_id;
+	RETURN e_name;
+END;
+/
+SET SERVEROUTPUT ON
+DECLARE
+	ph_code char(3):='&phone_code';
+	CURSOR c85 IS SELECT e.empcode emp_code FROM emp e JOIN work_exp w ON e.empcode=w.empcode JOIN client c ON w.clientid=c.clientid 
+	WHERE SUBSTR(c.phone,1,3)=ph_code;
+	v_found BOOLEAN:=FALSE;
+BEGIN
+	FOR i IN c85 LOOP
+		v_found:=True;
+		DBMS_OUTPUT.PUT_LINE('Name: '||country_code(ph_code,i.emp_code));
+	END LOOP;
+	IF NOT v_found THEN
+		RAISE NO_DATA_FOUND;
+	END IF;
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+		DBMS_OUTPUT.PUT_LINE('No matching Records Found.');
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('Unexpected Errors: '||SQLERRM);
+END;
+/
+Enter value for phone_code: +91
+old   2: ph_code char(3):='&phone_code';
+new   2: ph_code char(3):='+91';
+Name: VIJAY
+Name: AJAY
+Name: MANISH
+
+Enter value for phone_code: +94
+old   2: ph_code char(3):='&phone_code';
+new   2: ph_code char(3):='+94';
+No matching Records Found.
+
+PL/SQL procedure successfully completed.
+
+8.6
+SET SERVEROUTPUT ON
+CREATE OR REPLACE FUNCTION generate_email(emp_id IN number)
+RETURN varchar2 IS
+	e_name emp.name%TYPE;
+	emp_mail emp.email%TYPE;
+BEGIN
+	SELECT e.name INTO e_name FROM emp e WHERE e.empcode=emp_id;
+	emp_mail:=LOWER(e_name)||'_'||emp_id||'@digisol.com';
+	RETURN emp_mail;
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+		RETURN NULL;
+	WHEN OTHERS THEN
+		RETURN NULL;
+END;
+/
+Function created.
+
+SQL> SELECT generate_email(101) FROM dual;
+
+GENERATE_EMAIL(101)
+--------------------------------------------------------------------------------
+ravi_101@digisol.com
+
+SQL> SELECT generate_email(115) FROM dual;
+
+GENERATE_EMAIL(115)
+--------------------------------------------------------------------------------

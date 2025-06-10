@@ -1,0 +1,239 @@
+5.1
+SQL> SELECT name FROM emp WHERE designation=(SELECT designation FROM emp WHERE empcode=100);
+
+NAME
+----------
+RAJESH
+MANISH
+RAKESH
+ANIL
+PRAVEEN
+RAJ
+
+6 rows selected.
+
+5.2
+SQL> SELECT name FROM emp WHERE reports_to IN(SELECT empcode FROM emp where name='VIJAY');
+
+NAME
+----------
+RAKESH
+
+5.3
+SQL> SELECT DISTINCT name,designation,email FROM emp NATURAL JOIN work_exp WHERE prjid IN(SELECT prjid FROM emp NATURAL JOIN work_exp WHERE name='VIJAY');
+
+NAME       DESIGNATION          EMAIL
+---------- -------------------- --------------------
+RAJESH     DEVELOPER            rajesh@digisol.com
+AJAY       TECHNICAL HEAD       ajay@digisol.com
+RAVI       PROJEACT LEADER      ravi@digisol.com
+MANISH     DEVELOPER            manish@digisol.com
+VIJAY      PROJECT MANAGER      vijay@digisol.com                               
+
+5.4
+SQL> select name from emp join family_dependents on emp.empcode = family_dependents.empno where relationship in (select relationship from family_dependents where relationship='DAUGHTER');
+
+NAME                                                                            
+----------                                                                      
+RAJESH                                                                          
+RAVI                                                                            
+
+5.5
+SQL> SELECT name FROM emp WHERE empcode NOT IN(SELECT empcode FROM work_exp NATURAL JOIN prj_details WHERE prj_name='SPYDER');
+
+NAME
+----------
+RAKESH
+AJAY
+ANIL
+BHASKAR
+MANISH
+RAKESH
+PRASAD
+PRAVEEN
+RAJ
+RAJ
+
+10 rows selected.
+
+5.6                                                                          
+SQL> SELECT DISTINCT name FROM emp JOIN emp_skill ON emp.empcode=emp_skill.empno WHERE skillid=SOME(SELECT skillid FROM emp_skill e JOIN work_exp w ON e.empno=w.empcode WHERE prjid='P1');
+
+NAME
+----------
+BHASKAR
+RAVI
+RAJ
+VIJAY
+RAJESH 
+
+5.7
+SQL> SELECT name FROM emp NATURAL JOIN work_exp WHERE prjid='P1' AND work_experience>ALL(SELECT work_experience FROM work_exp WHERE prjid='P2');
+
+NAME
+----------
+RAJESH
+
+5.8
+SQL> SELECT name FROM emp NATURAL JOIN work_exp WHERE (prjid,clientid) IN(SELECT prjid,clientid FROM work_exp WHERE empcode=100)
+  2  UNION
+  3  SELECT name FROM emp NATURAL JOIN work_exp WHERE prjid IN(SELECT prjid FROM work_exp WHERE empcode=100 AND clientid IS NULL);
+
+NAME
+----------
+RAJ
+RAJESH
+RAVI
+VIJAY                                                                         
+
+5.9
+SQL> SELECT name FROM emp
+  2  MINUS
+  3  SELECT name FROM emp NATURAL JOIN work_exp WHERE prjid IN(SELECT prjid FROM work_exp WHERE empcode=106);
+
+NAME
+----------
+AJAY
+ANIL
+MANISH
+PRASAD
+PRAVEEN
+RAKESH
+RAVI
+VIJAY
+
+8 rows selected.                                                                      
+
+5.10
+SQL> SELECT prj_name,sum(salary) FROM prj_details p1 NATURAL JOIN work_exp w NATURAL JOIN emp e GROUP BY prj_name HAVING sum(salary)<(SELECT p2.budget_allocated FROM prj_details p2 WHERE p2.prj_name=p1.prj_name);
+
+PRJ_NAME   SUM(SALARY)
+---------- -----------
+APOLLO          631500
+ZEUS            545000
+UNICORN         406500
+JUPITOR         441500
+SPYDER          681500
+
+5.11
+SQL> SELECT p.prj_name,count(*) AS number_of_employees FROM work_exp w NATURAL JOIN prj_details p WHERE w.RATING IN('A','B') GROUP BY p.prj_name ORDER BY number_of_employees DESC;
+
+PRJ_NAME   NUMBER_OF_EMPLOYEES
+---------- -------------------
+SPYDER                       3
+APOLLO                       2
+JUPITOR                      1
+ZEUS                         1
+UNICORN                      1                                                          
+
+5.12
+SQL> SELECT p.prj_name,count(*) AS count_emp FROM work_exp w NATURAL JOIN prj_details p GROUP BY p.prj_name HAVING count(*)>1;
+
+PRJ_NAME    COUNT_EMP
+---------- ----------
+APOLLO              3
+ZEUS                2
+UNICORN             2
+JUPITOR             2
+SPYDER              3                                                          
+
+5.13
+SQL> SELECT e.name,count(*) FROM emp e JOIN family_dependents f ON e.empcode=f.empno GROUP BY e.name;
+
+NAME         COUNT(*)
+---------- ----------
+RAVI                3
+RAJESH              2                                                          
+
+5.14
+SQL> SELECT to_char(policydate,'YYYY') AS year,SUM(premium) FROM medical_policy GROUP BY to_char(policydate,'YYYY');
+
+YEAR SUM(PREMIUM)
+---- ------------
+2020        22000
+2021        31000                                                                   
+
+5.15
+SQL> WITH total_skill_experience(empid,sum_skill_experience) AS
+  2  (SELECT empno,SUM(skill_experience) FROM emp_skill GROUP BY empno HAVING SUM(skill_experience)>20)
+  3  SELECT name FROM emp JOIN total_skill_experience ON empcode=empid;
+
+NAME
+----------
+RAJESH
+MANISH
+RAJ
+AJAY
+BHASKAR
+
+5.16
+SQL> CREATE TABLE emp_prj(emp_name,budget,project_name) AS SELECT e.name,p.actual_budjet,p.prj_name FROM emp e NATURAL JOIN work_exp NATURAL JOIN prj_details p WHERE lead_by_emp_code=110;
+
+Table created.
+
+5.17
+SQL> UPDATE emp SET salary=CASE
+  2  WHEN designation IN('PROJEACT LEADER','PRJOECT LEADER') THEN salary*1.1
+  3  WHEN designation='DEVELOPER' THEN salary*1.05
+  4  ELSE salary
+  5  END;
+
+13 rows updated.
+
+5.18
+SQL> CREATE VIEW emp_skill_experience(employee_name,skill_name,skill_experience) AS SELECT e.name,s.skillname,e_s.skill_experience FROM emp e JOIN emp_skill e_s ON e.empcode=
+e_s.empno JOIN skill s ON e_s.skillid=s.skillid WHERE e_s.skill_experience>20;
+
+View created.
+
+SQL> select * from emp_skill_experience;
+
+no rows selected
+
+SQL> UPDATE emp_skill SET skill_experience=22 WHERE empno=105;
+
+2 rows updated.
+
+SQL> select * from emp_skill_experience;
+
+EMPLOYEE_N SKILL_NAME           SKILL_EXPERIENCE
+---------- -------------------- ----------------
+MANISH     Android                            22
+MANISH     IOS                                22
+
+SQL> commit;
+
+Commit complete.
+
+5.19
+SQL> CREATE VIEW emp_designation AS SELECT empcode,name,salary FROM emp WHERE designation IN('PROJEACT LEADER','PRJOECT LEADER','DEVELOPER');
+
+View created.
+
+5.20
+SQL> SELECT e.name,(SELECT COUNT(*) FROM work_exp w WHERE e.empcode=w.empcode) AS project_count FROM emp e;
+
+NAME       PROJECT_COUNT
+---------- -------------
+PRASAD                 0
+BHASKAR                2
+RAVI                   1
+VIJAY                  2
+RAJ                    2
+RAKESH                 0
+AJAY                   1
+RAJESH                 2
+MANISH                 1
+RAKESH                 0
+ANIL                   0
+
+NAME       PROJECT_COUNT
+---------- -------------
+PRAVEEN                0
+RAJ                    1
+
+13 rows selected.
+
+SQL> COMMIT;
+
+Commit complete.

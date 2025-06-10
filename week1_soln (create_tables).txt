@@ -1,0 +1,153 @@
+1.0 
+Create table EMP(
+EMPCODE number(3) CONSTRAINT PK_EMPNO Primary Key,
+NAME varchar2(10),
+QUALIFICATION varchar2(7) CONSTRAINT VALID_QUALIF check(QUALIFICATION IN('BTECH','MTECH','MSC','MCA','PHD')),
+PHONE number(10),
+EMAIL varchar2(20) CONSTRAINT EMAIL_DOMAIN check(EMAIL LIKE('%@digisol.com')),
+DESIGNATION varchar2(20) CONSTRAINT VALID_DESIGNATION check(DESIGNATION IN('DEVELOPER','PROJEACT LEADER','PROJECT MANAGER','TECHNICAL HEAD','PROJECT DIRECTOR','PRJOECT LEADER','CEO')),
+SALARY number(7) CONSTRAINT SALARY_RANGE check(SALARY between 97000 AND 300000));
+
+SQL> DESCRIBE EMP;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ EMPCODE                                   NOT NULL NUMBER(3)
+ NAME                                               VARCHAR2(10)
+ QUALIFICATION                                      VARCHAR2(7)
+ PHONE                                              NUMBER(10)
+ EMAIL                                              VARCHAR2(20)
+ DESIGNATION                                        VARCHAR2(20)
+ SALARY                                             NUMBER(7)
+
+SQL> SPOOL OFF;
+
+Create table PRJ_DETAILS(
+PRJID char(3) CONSTRAINT PK_PRJID Primary Key check(PRJID LIKE('P%')),
+PRJ_NAME varchar2(10),
+START_DATE Date,
+END_DATE Date,
+ACTUAL_END_DATE Date,
+LEAD_BY_EMP_CODE Number(3) CONSTRAINT FK_LEAD_EMP references EMP,
+BUDJECT_ALLOCATED Number(10,1),
+ACTUAL_BUDJECT Number(10,1),
+CONSTRAINT END_DATE_GARTER_START_DATE check(END_DATE>START_DATE), check(ACTUAL_END_DATE>=END_DATE));
+
+SQL> DESCRIBE PRJ_DETAILS;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PRJID                                     NOT NULL CHAR(3)
+ PRJ_NAME                                           VARCHAR2(10)
+ START_DATE                                         DATE
+ END_DATE                                           DATE
+ ACTUAL_END_DATE                                    DATE
+ LEAD_BY_EMP_CODE                                   NUMBER(3)
+ BUDJECT_ALLOCATED                                  NUMBER(10,1)
+ ACTUAL_BUDJECT                                     NUMBER(10,1)
+
+Create table SKILL(
+SKILLID char(3) CONSTRAINT UNQ_SKILLID Unique,
+SKILLNAME varchar(20) CONSTRAINT UNQ_SKILNAME Unique);
+
+SQL> DESCRIBE SKILL;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ SKILLID                                            CHAR(3)
+ SKILLNAME                                          VARCHAR2(20)
+
+Create table CLIENT(
+CLIENTID char(3) CONSTRAINT PK_CLIENTID Primary Key CONSTRAINT STRTSWITH_C CHECK(CLIENTID LIKE('C%')),
+NAME VARCHAR2(10),
+PHONE CHAR(14) check(PHONE LIKE '+91-%' OR PHONE LIKE '+81-%' OR PHONE LIKE '+31-%' OR PHONE LIKE '+48-%' OR PHONE LIKE '+44-%'));
+
+SQL> DESCRIBE CLIENT;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ CLIENTID                                  NOT NULL CHAR(3)
+ NAME                                               VARCHAR2(10)
+ PHONE                                              CHAR(14)
+
+Create table FAMILY_DEPENDENTS(
+EMPNO references EMP,
+DEP_NAME varchar(20),
+Primary Key(EMPNO,DEP_NAME),
+RELATIONSHIP VARCHAR(16),
+AGE number(3) CONSTRAINT VALID_AGE CHECK(AGE>=1 AND AGE<=130));
+
+SQL> DESCRIBE FAMILY_DEPENDENTS;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ EMPNO                                     NOT NULL NUMBER(3)
+ DEP_NAME                                  NOT NULL VARCHAR2(20)
+ RELATIONSHIP                                       VARCHAR2(16)
+ AGE                                                NUMBER(3)
+
+Create table MEDICAL_POLICY(
+EMPNO references EMP,
+POLICYNO varchar2(6) check(POLICYNO LIKE 'MED%'),
+PREMIUM number(5) check(PREMIUM>0),
+POLICYDATE date,
+Primary Key(EMPNO,POLICYNO));  
+
+SQL> DESCRIBE MEDICAL_POLICY;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ EMPNO                                     NOT NULL NUMBER(3)
+ POLICYNO                                  NOT NULL VARCHAR2(6)
+ PREMIUM                                            NUMBER(5)
+ POLICYDATE                                         DATE
+
+Create table PAY_CHECK(
+EMPCODE references EMP,
+PAY_DATE Date,
+REGULAR_INCREMENT Number(4) CONSTRAINT VALID_REGU_INCENTIVE check(REGULAR_INCREMENT IN(2000,3000,5000,7000,9000)),
+PERFORMNCE_INCENTIVE Number(5),
+DA Number(7),
+PF Number(6),
+OTHER_INCENTIVES Number(4),
+ADVANCE_TAX Number(5),
+Primary Key(EMPCODE,PAY_DATE));
+
+SQL> DESCRIBE PAY_CHECK;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ EMPCODE                                   NOT NULL NUMBER(3)
+ PAY_DATE                                  NOT NULL DATE
+ REGULAR_INCREMENT                                  NUMBER(4)
+ PERFORMNCE_INCENTIVE                               NUMBER(5)
+ DA                                                 NUMBER(7)
+ PF                                                 NUMBER(6)
+ OTHER_INCENTIVES                                   NUMBER(4)
+ ADVANCE_TAX                                        NUMBER(5)
+
+Create table EMP_SKILL(
+EMPNO Number(3) CONSTRAINT FK_EMPNO references EMP,
+SKILLID char(3) CONSTRAINT FK_SKILLID references SKILL(SKILLID) ON DELETE CASCADE,
+SKILL_EXPERIENCE Number(3) check(SKILL_EXPERIENCE>0));
+
+SQL> DESCRIBE EMP_SKILL;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ EMPNO                                              NUMBER(3)
+ SKILLID                                            CHAR(3)
+ SKILL_EXPERIENCE                                   NUMBER(3)
+
+Create table WORK_EXP(
+EMPCODE Number(3) references EMP,
+PRJID references PRJ_DETAILS,
+WORK_EXPERIENCE Number(3) NOT NULL check(WORK_EXPERIENCE>=0),
+CLIENTID references CLIENT ON DELETE SET NULL,
+RATING char(1) check(RATING IN('A','B','C')),
+Primary Key(EMPCODE,PRJID));
+
+SQL> DESCRIBE WORK_EXP;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ EMPCODE                                   NOT NULL NUMBER(3)
+ PRJID                                     NOT NULL CHAR(3)
+ WORK_EXPERIENCE                           NOT NULL NUMBER(3)
+ CLIENTID                                           CHAR(3)
+ RATING                                             CHAR(1)
+
+
+
+

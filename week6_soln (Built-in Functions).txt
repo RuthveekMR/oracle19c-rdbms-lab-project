@@ -1,0 +1,405 @@
+6.1
+SQL> SELECT UPPER(name) FROM emp;
+
+UPPER(NAME
+----------
+PRASAD
+BHASKAR
+RAVI
+VIJAY
+RAJ
+RAKESH
+AJAY
+RAJESH
+MANISH
+RAKESH
+ANIL
+
+UPPER(NAME
+----------
+PRAVEEN
+RAJ
+
+13 rows selected.
+
+SQL> SELECT LOWER(name) FROM emp;
+
+LOWER(NAME
+----------
+prasad
+bhaskar
+ravi
+vijay
+raj
+rakesh
+ajay
+rajesh
+manish
+rakesh
+anil
+
+LOWER(NAME
+----------
+praveen
+raj
+
+13 rows selected.
+
+SQL> SELECT CONCAT(
+  2  UPPER(SUBSTR(name,1,1)),
+  3  LOWER(SUBSTR(name,2,LENGTH(name)))
+  4  ) AS first_capital
+  5  FROM emp;
+
+FIRST_CAPITAL
+----------------------------------------
+Prasad
+Bhaskar
+Ravi
+Vijay
+Raj
+Rakesh
+Ajay
+Rajesh
+Manish
+Rakesh
+Anil
+
+FIRST_CAPITAL
+----------------------------------------
+Praveen
+Raj
+
+13 rows selected.
+
+6.2
+SQL> SELECT UPPER(SUBSTR(name,1,1))||LOWER(SUBSTR(name,2))||' Works as '||UPPER(SUBSTR(designation,1,1))||LOWER(SUBSTR(designation,2)) AS name_works_as_designation FROM emp;
+
+NAME_WORKS_AS_DESIGNATION
+--------------------------------------------------------------------------------
+Prasad Works as Ceo
+Bhaskar Works as Project director
+Ravi Works as Projeact leader
+Vijay Works as Project manager
+Raj Works as Prjoect leader
+Rakesh Works as Technical head
+Ajay Works as Technical head
+Rajesh Works as Developer
+Manish Works as Developer
+Rakesh Works as Developer
+Anil Works as Developer
+
+NAME_WORKS_AS_DESIGNATION
+--------------------------------------------------------------------------------
+Praveen Works as Developer
+Raj Works as Developer
+
+13 rows selected.
+
+6.3
+SQL> SELECT LPAD(salary,10,'*') AS left_pad_salary FROM emp;
+
+LEFT_PAD_SALARY
+----------------------------------------
+****299000
+****290000
+****260000
+****270000
+****255000
+****220000
+****210000
+****151500
+****151500
+****181800
+****146450
+
+LEFT_PAD_SALARY
+----------------------------------------
+****176750
+****151500
+
+13 rows selected.
+
+6.4
+SQL> SELECT RPAD(salary,10,'*') right_pad_salary FROM emp;
+
+RIGHT_PAD_SALARY
+----------------------------------------
+299000****
+290000****
+260000****
+270000****
+255000****
+220000****
+210000****
+151500****
+151500****
+181800****
+146450****
+
+RIGHT_PAD_SALARY
+----------------------------------------
+176750****
+151500****
+
+13 rows selected.
+
+6.5
+SQL> SELECT name,LENGTH(name) FROM emp;
+
+NAME       LENGTH(NAME)
+---------- ------------
+PRASAD                6
+BHASKAR               7
+RAVI                  4
+VIJAY                 5
+RAJ                   3
+RAKESH                6
+AJAY                  4
+RAJESH                6
+MANISH                6
+RAKESH                6
+ANIL                  4
+
+NAME       LENGTH(NAME)
+---------- ------------
+PRAVEEN               7
+RAJ                   3
+
+13 rows selected.
+
+6.6
+SQL> SELECT email,SUBSTR(email,3,9) FROM emp;
+
+EMAIL                SUBSTR(EMAIL,3,9)
+-------------------- ------------------------------------
+prasad@digisol.com   asad@digi
+bhaskar@digisol.com  askar@dig
+ravi@digisol.com     vi@digiso
+vijay@digisol.com    jay@digis
+raj@digisol.com      j@digisol
+rakesh@digisol.com   kesh@digi
+ajay@digisol.com     ay@digiso
+rajesh@digisol.com   jesh@digi
+manish@digisol.com   nish@digi
+rakesh2@digisol.com  kesh2@dig
+anil@digisol.com     il@digiso
+
+EMAIL                SUBSTR(EMAIL,3,9)
+-------------------- ------------------------------------
+praveen@digisol.com  aveen@dig
+raj2@digisol.com     j2@digiso
+
+13 rows selected.
+
+6.7
+SQL> SELECT REPLACE(email,'digisol','digitech') FROM emp;
+
+REPLACE(EMAIL,'DIGISOL','DIGITECH')
+--------------------------------------------------------------------------------
+prasad@digitech.com
+bhaskar@digitech.com
+ravi@digitech.com
+vijay@digitech.com
+raj@digitech.com
+rakesh@digitech.com
+ajay@digitech.com
+rajesh@digitech.com
+manish@digitech.com
+rakesh2@digitech.com
+anil@digitech.com
+
+REPLACE(EMAIL,'DIGISOL','DIGITECH')
+--------------------------------------------------------------------------------
+praveen@digitech.com
+raj2@digitech.com
+
+13 rows selected.
+
+6.8
+SQL> SELECT CONCAT(e.name,f.dep_name) employee_dependent FROM emp e JOIN family_dependents f ON e.empcode=f.empno;
+
+EMPLOYEE_DEPENDENT
+------------------------------
+RAVIAARYA
+RAVIAKANKSH
+RAVIANITHA
+RAJESHAJITH
+RAJESHPRITHVI
+
+6.9
+SQL> SELECT clientid,LENGTH(clientid) FROM client;
+
+CLI LENGTH(CLIENTID)
+--- ----------------
+C2                 3
+C3                 3
+C4                 3
+C5                 3
+C6                 3
+C7                 3
+C8                 3
+
+7 rows selected.
+
+6.10
+SQL> SELECT RTRIM(clientid),LENGTH(RTRIM(clientid)) FROM client;
+
+RTR LENGTH(RTRIM(CLIENTID))
+--- -----------------------
+C2                        2
+C3                        2
+C4                        2
+C5                        2
+C6                        2
+C7                        2
+C8                        2
+
+7 rows selected.
+
+6.11
+SQL> SELECT LTRIM(clientid),LENGTH(LTRIM(clientid)) FROM client;
+
+LTR LENGTH(LTRIM(CLIENTID))
+--- -----------------------
+C2                        3
+C3                        3
+C4                        3
+C5                        3
+C6                        3
+C7                        3
+C8                        3
+
+7 rows selected.
+
+SQL> SELECT TRIM(clientid),LENGTH(TRIM(clientid)) FROM client;
+
+TRI LENGTH(TRIM(CLIENTID))
+--- ----------------------
+C2                       2
+C3                       2
+C4                       2
+C5                       2
+C6                       2
+C7                       2
+C8                       2
+
+7 rows selected.
+
+6.12
+SQL> SELECT CHR(65),ASCII('A') FROM dual;
+
+CHR(65) ASCII('A')
+------- ----------
+A               65
+6.13
+SQL> SELECT TRUNC(123.456,2) FROM dual;
+
+TRUNC(123.456,2)
+----------------
+          123.45
+
+6.14
+SQL> SELECT SQRT(9),POWER(9,2),POWER(9,5) from dual;
+
+   SQRT(9) POWER(9,2) POWER(9,5)
+---------- ---------- ----------
+         3         81      59049
+
+6.15
+SQL> SELECT ROUND(123.456,2) FROM dual;
+
+ROUND(123.456,2)
+----------------
+          123.46
+
+6.16
+SQL> SELECT ABS(-123),MOD(123,10) FROM dual;
+
+ ABS(-123) MOD(123,10)
+---------- -----------
+       123           3
+
+6.17
+SQL> SELECT FLOOR(234.36),CEIL(234.36),FLOOR(-234.36),CEIL(-234.36) FROM dual;
+
+FLOOR(234.36) CEIL(234.36) FLOOR(-234.36) CEIL(-234.36)
+------------- ------------ -------------- -------------
+          234          235           -235          -234
+
+6.18
+SQL> SELECT to_char(start_date,'DD-Month-YYYY') prj_start_date,to_char(end_date,'DD-Month-YYYY') prj_end_date FROM prj_details;
+
+PRJ_START_DATE                               PRJ_END_DATE
+-------------------------------------------- --------------------------------------------
+10-January  -2020                            11-October  -2022
+01-January  -2019                            10-July     -2021
+03-September-2021                            10-October  -2023
+28-February -2020                            09-June     -2021
+07-August   -2018                            04-February -2020
+21-February -2022                            07-August   -2023
+
+6 rows selected.
+
+6.19
+SQL> SELECT to_char(actual_end_date,'Mon-YYYY') actual_closing FROM prj_details;
+
+ACTUAL_CLOSING
+-----------------
+Mar-2023
+Dec-2021
+Dec-2023
+Jan-2022
+Nov-2020
+Jan-2024
+
+6 rows selected.
+
+6.20
+SQL> SELECT to_char(start_date,'Mon-DD-YYYY') prj_start FROM prj_details;
+
+PRJ_START
+--------------------
+Jan-10-2020
+Jan-01-2019
+Sep-03-2021
+Feb-28-2020
+Aug-07-2018
+Feb-21-2022
+
+6 rows selected.
+
+6.21
+SQL> SELECT prj_name,MONTHS_BETWEEN(end_date,start_date) months_duration FROM prj_details;
+
+PRJ_NAME   MONTHS_DURATION
+---------- ---------------
+SPYDER          33.0322581
+APOLLO          30.2903226
+UNICORN         25.2258065
+ZEUS            15.3870968
+JUPITOR         17.9032258
+MARS            17.5483871
+
+6 rows selected.
+
+6.22
+SQL> SELECT prj_name,end_date,ADD_MONTHS(end_date,2) two_months_later FROM prj_details;
+
+PRJ_NAME   END_DATE  TWO_MONTHS_LATER
+---------- --------- ----------------
+SPYDER     11-OCT-22 11-DEC-22
+APOLLO     10-JUL-21 10-SEP-21
+UNICORN    10-OCT-23 10-DEC-23
+ZEUS       09-JUN-21 09-AUG-21
+JUPITOR    04-FEB-20 04-APR-20
+MARS       07-AUG-23 07-OCT-23
+
+6 rows selected.
+
+6.23
+SQL> SELECT NEXT_DAY(SYSDATE, 'Thursday') AS next_thursday FROM DUAL;
+
+NEXT_THURSDAY
+-------------
+03-APR-25

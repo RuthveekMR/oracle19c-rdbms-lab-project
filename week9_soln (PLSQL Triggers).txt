@@ -1,0 +1,113 @@
+9.1
+SET SERVEROUTPUT ON
+CREATE OR REPLACE TRIGGER salary_increment
+BEFORE UPDATE OF salary ON emp
+FOR EACH ROW
+BEGIN	
+	--Change in salary range due to table values
+	IF :OLD.designation='DEVELOPER' AND :OLD.salary BETWEEN 150000 AND 190000 AND (:NEW.salary-:OLD.salary)=1000 THEN
+		DBMS_OUTPUT.PUT_LINE('Salary of '||:OLD.name||' ('||:OLD.empcode||') is successfully updated from '||:OLD.salary||' to '||:NEW.salary);
+	ELSIF (:OLD.designation='PROJEACT LEADER' OR :OLD.designation='PRJOECT LEADER') AND :NEW.salary BETWEEN 200000 AND 260000 AND (:NEW.salary-:OLD.salary)=2000 THEN
+		DBMS_OUTPUT.PUT_LINE('Salary of '||:OLD.name||' ('||:OLD.empcode||') is successfully updated from '||:OLD.salary||' to '||:NEW.salary);
+	ELSIF :OLD.designation='PROJECT MANAGER' AND :OLD.salary BETWEEN 190000 AND 270000 AND (:NEW.salary-:OLD.salary)=3000 THEN
+		DBMS_OUTPUT.PUT_LINE('Salary of '||:OLD.name||' ('||:OLD.empcode||') is successfully updated from '||:OLD.salary||' to '||:NEW.salary);
+	ELSIF :OLD.designation='TECHNICAL HEAD' AND :OLD.salary BETWEEN 190000 AND 240000 AND (:NEW.salary-:OLD.salary)=3000 THEN
+		DBMS_OUTPUT.PUT_LINE('Salary of '||:OLD.name||' ('||:OLD.empcode||') is successfully updated from '||:OLD.salary||' to '||:NEW.salary);
+	ELSIF :OLD.designation='PROJECT MANAGER' AND :OLD.salary BETWEEN 270001 AND 280000 AND (:NEW.salary-:OLD.salary)=5000 THEN
+		DBMS_OUTPUT.PUT_LINE('Salary of '||:OLD.name||' ('||:OLD.empcode||') is successfully updated from '||:OLD.salary||' to '||:NEW.salary);
+	ELSIF :OLD.designation='PROJECT DIRECTOR' AND :OLD.salary BETWEEN 210000 AND 285000 AND (:NEW.salary-:OLD.salary)=10000 THEN
+		DBMS_OUTPUT.PUT_LINE('Salary of '||:OLD.name||' ('||:OLD.empcode||') is successfully updated from '||:OLD.salary||' to '||:NEW.salary);
+	ELSIF :OLD.designation='CEO' AND :OLD.salary BETWEEN 220000 AND 300000 AND (:NEW.salary-:OLD.salary)=20000 THEN
+		DBMS_OUTPUT.PUT_LINE('Salary of '||:OLD.name||' ('||:OLD.empcode||') is successfully updated from '||:OLD.salary||' to '||:NEW.salary);
+	ELSE
+		RAISE_APPLICATION_ERROR(-20001,'Salary Updation Unsuccessful');
+	END IF;
+EXCEPTION
+	WHEN OTHERS THEN
+		IF SQLCODE=-20001 THEN
+			RAISE_APPLICATION_ERROR(-20001,'Salary Updation Unsuccessful');
+		ELSE
+			DBMS_OUTPUT.PUT_LINE('Unexpected Error: '||SQLERRM);
+		END IF;
+END;
+/
+
+Trigger created.
+
+SQL> update emp set salary=274000 where empcode=102;
+update emp set salary=274000 where empcode=102
+       *
+ERROR at line 1:
+ORA-20001: Salary Updation Unsuccessful
+ORA-06512: at "SYSTEM.SALARY_INCREMENT", line 23
+ORA-04088: error during execution of trigger 'SYSTEM.SALARY_INCREMENT'
+
+
+SQL> update emp set salary=273000 where empcode=102;
+Salary of VIJAY (102) is successfully updated from 270000 to 273000
+
+1 row updated.
+
+SQL> update emp set salary=276000 where empcode=102;
+update emp set salary=276000 where empcode=102
+       *
+ERROR at line 1:
+ORA-20001: Salary Updation Unsuccessful
+ORA-06512: at "SYSTEM.SALARY_INCREMENT", line 23
+ORA-04088: error during execution of trigger 'SYSTEM.SALARY_INCREMENT'
+
+
+SQL> update emp set salary=278000 where empcode=102;
+Salary of VIJAY (102) is successfully updated from 273000 to 278000
+
+1 row updated.
+
+9.2
+SET SERVEROUTPUT ON
+CREATE OR REPLACE TRIGGER project_modify
+BEFORE INSERT OR
+UPDATE OF lead_by_emp_code ON prj_details
+FOR EACH ROW
+DECLARE
+	ecode emp.empcode%TYPE;
+BEGIN
+	WITH temp_prj(empcode,total_skill_exp) AS (SELECT empno,sum(skill_experience) FROM emp_skill JOIN emp e ON e.empcode=empno WHERE 
+	e.designation IN('PROJEACT LEADER','PRJOECT LEADER','PROJECT MANAGER') GROUP BY empno HAVING sum(skill_experience)>=18)
+	SELECT empcode INTO ecode FROM temp_prj WHERE empcode=:NEW.lead_by_emp_code;
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+		RAISE_APPLICATION_ERROR(-20002,'Employee does not meet Company Policy to lead Project.');
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('Unexpected Error: '||SQLERRM);
+END;
+/
+
+Trigger created.
+
+SQL> INSERT INTO prj_details(lead_by_emp_code) VALUES(103);
+INSERT INTO prj_details(lead_by_emp_code) VALUES(103)
+            *
+ERROR at line 1:
+ORA-20002: Employee does not meet Company Policy to lead Project.
+ORA-06512: at "SYSTEM.PROJECT_MODIFY", line 9
+ORA-04088: error during execution of trigger 'SYSTEM.PROJECT_MODIFY'
+
+
+SQL> INSERT INTO prj_details(lead_by_emp_code) VALUES(102);
+INSERT INTO prj_details(lead_by_emp_code) VALUES(102)
+*
+ERROR at line 1:
+ORA-01400: cannot insert NULL into ("SYSTEM"."PRJ_DETAILS"."PRJID")
+
+SQL> UPDATE prj_details SET lead_by_emp_code=108 WHERE prjid='P4';
+UPDATE prj_details SET lead_by_emp_code=108 WHERE prjid='P4'
+       *
+ERROR at line 1:
+ORA-20002: Employee does not meet Company Policy to lead Project.
+ORA-06512: at "SYSTEM.PROJECT_MODIFY", line 9
+ORA-04088: error during execution of trigger 'SYSTEM.PROJECT_MODIFY'
+
+
+SQL> UPDATE prj_details SET lead_by_emp_code=106 WHERE prjid='P4';
+
+1 row updated.

@@ -1,0 +1,605 @@
+7.1
+SET SERVEROUTPUT ON
+DECLARE
+	v_num number:=&v_num;
+	rev number:=0;
+	rem number;
+	temp number:=v_num;
+BEGIN
+	WHILE v_num<>0 LOOP
+		rem:=MOD(v_num,10);
+		rev:=10*rev+rem;
+		v_num:=TRUNC(v_num/10);
+	END LOOP;
+	DBMS_OUTPUT.PUT_LINE('The reverse of '||temp||' is '||rev);
+END;
+/
+Enter value for v_num: 123
+old   2:        v_num number:=&v_num;
+new   2:        v_num number:=123;
+The reverse of 123 is 321
+
+PL/SQL procedure successfully completed.
+
+7.2
+SET SERVEROUTPUT ON
+DECLARE
+	word varchar2(20):='&word';
+	rev varchar2(20):='';
+	i number;
+BEGIN
+	FOR i IN REVERSE 1..LENGTH(word) LOOP
+		rev:=rev||SUBSTR(word,i,1);
+	END LOOP;
+	IF LOWER(word)=LOWER(rev) THEN
+		DBMS_OUTPUT.PUT_LINE(word||' is a palindrome.');
+	ELSE
+		DBMS_OUTPUT.PUT_LINE(word||' is not a palindrome.');
+	END IF;
+END;
+/
+Enter value for word: mALAYALAM
+old   2:        word varchar2(20):='&word';
+new   2:        word varchar2(20):='mALAYALAM';
+mALAYALAM is a palindrome.
+
+PL/SQL procedure successfully completed.
+		
+7.3
+SET SERVEROUTPUT ON
+DECLARE
+	v_emp emp%ROWTYPE;
+	empno emp.empcode%TYPE:=&empno;
+BEGIN
+	SELECT * INTO v_emp FROM emp WHERE empcode=empno;
+	DBMS_OUTPUT.PUT_LINE('Employee Code:'||v_emp.empcode);
+	DBMS_OUTPUT.PUT_LINE('Name:'||v_emp.name);
+	DBMS_OUTPUT.PUT_LINE('Qualification:'||v_emp.qualification);
+	DBMS_OUTPUT.PUT_LINE('Phone No:'||v_emp.phone);
+	DBMS_OUTPUT.PUT_LINE('Email ID:'||v_emp.email);
+	DBMS_OUTPUT.PUT_LINE('Designation:'||v_emp.designation);
+	DBMS_OUTPUT.PUT_LINE('Salary:'||v_emp.salary);
+	DBMS_OUTPUT.PUT_LINE('Reports_to (empcode):'||v_emp.reports_to);
+END;
+/
+Enter value for empno: 101
+old   5: empno:=&empno;
+new   5: empno:=101;
+Employee Code:101
+Name:RAVI
+Qualification:MTECH
+Phone No:9923456789
+Email ID:ravi@digisol.com
+Designation:PROJEACT LEADER
+Salary:260000
+Reports_to (empcode):110
+
+PL/SQL procedure successfully completed.	
+
+7.4
+SET SERVEROUTPUT ON
+DECLARE
+	sentence varchar(50):=&sentence;
+	i number;
+	vowel number:=0;
+	consonant number:=0;
+	num number:=0;
+	special number:=0;
+BEGIN
+	FOR i in 1..LENGTH(sentence) LOOP
+		IF UPPER(SUBSTR(sentence,i,1)) IN ('A','E','I','O','U') THEN
+			vowel:=vowel+1;
+		ELSIF UPPER(SUBSTR(sentence,i,1))>='A' AND UPPER(SUBSTR(sentence,i,1))<='Z' THEN
+			consonant:=consonant+1;
+		ELSIF SUBSTR(sentence,i,1)>='0' AND SUBSTR(sentence,i,1)<='9' THEN
+			num:=num+1;
+		ELSIF SUBSTR(sentence,i,1)=' ' THEN
+			NULL;
+		ELSE special:=special+1;
+		END IF;
+	END LOOP;
+	DBMS_OUTPUT.PUT_LINE('Count of Vowels:'||vowel||CHR(10)||'Count of Consonants:'||consonant);
+	DBMS_OUTPUT.PUT_LINE('Count of Numbers:'||num||CHR(10)||'Count of Special Characters:'||special);
+END;
+/
+Enter value for sentence: 'Do you know, my age is 21.'
+old   2: sentence varchar(50):=&sentence;
+new   2: sentence varchar(50):='Do you know, my age is 21.';
+Count of Vowels:7
+Count of Consonants:9
+Count of Numbers:2
+Count of Special Characters:2
+
+PL/SQL procedure successfully completed.
+
+7.5
+SET SERVEROUTPUT ON
+DECLARE
+	v_empcode emp.empcode%TYPE:=&v_empcode;
+	pid work_exp.prjid%TYPE:=&project_id;
+	v_name emp.name%TYPE;
+	v_salary emp.salary%TYPE;
+	pname prj_details.prj_name%TYPE;
+	v_rating work_exp.rating%TYPE;
+	incentive number;
+	total_salary number;
+BEGIN
+	SELECT e.empcode,e.name,e.salary,p.prj_name,w.rating INTO v_empcode,v_name,v_salary,pname,v_rating FROM emp e JOIN work_exp w ON e.empcode=w.empcode 
+	JOIN prj_details p ON w.prjid=p.prjid WHERE v_empcode=e.empcode AND pid=w.prjid;
+	IF v_rating='A' THEN
+		incentive:=10000;
+	ELSIF v_rating='B' THEN
+		incentive:=5000;
+	ELSIF v_rating='C' THEN
+		incentive:=3000;
+	ELSE incentive:=0;
+	END IF;
+	total_salary:=v_salary+incentive;
+	DBMS_OUTPUT.PUT_LINE('Employee Code:'||v_empcode);
+	DBMS_OUTPUT.PUT_LINE('Name:'||v_name);
+	DBMS_OUTPUT.PUT_LINE('Salary:'||v_salary);
+	DBMS_OUTPUT.PUT_LINE('Project Name:'||pname);
+	DBMS_OUTPUT.PUT_LINE('Rating:'||v_rating);
+	DBMS_OUTPUT.PUT_LINE('Incentive:'||incentive);
+	DBMS_OUTPUT.PUT_LINE('Total Salary:'||total_salary);
+END;
+/
+Enter value for v_empcode: 100
+old   2: v_empcode emp.empcode%TYPE:=&v_empcode;
+new   2: v_empcode emp.empcode%TYPE:=100;
+Enter value for project_id: 'P3'
+old   3: pid work_exp.prjid%TYPE:=&project_id;
+new   3: pid work_exp.prjid%TYPE:='P3';
+Employee Code:100
+Name:RAJESH
+Salary:151500
+Project Name:UNICORN
+Rating:A
+Incentive:10000
+Total Salary:161500
+
+PL/SQL procedure successfully completed.
+	
+7.6
+SET SERVEROUTPUT ON
+DECLARE
+	v_name emp.name%TYPE;
+	b_salary emp.salary%TYPE;
+	ib_salary number;
+	mg_salary number;
+	mth_salary number;
+	v_pay pay_check%ROWTYPE;
+BEGIN
+	SELECT e.name,e.salary INTO v_name,b_salary FROM emp e WHERE e.empcode=100;	
+	SELECT * INTO v_pay FROM pay_check p WHERE to_char(p.pay_date,'MM-YYYY')='01-2021' AND p.empcode=100;
+	ib_salary:=b_salary+v_pay.regular_increment;
+	v_pay.da:=0.5*b_salary;
+	v_pay.pf:=0.12*b_salary;
+	mg_salary:=ib_salary+v_pay.performnce_incentive+v_pay.da+v_pay.pf+v_pay.other_incentives;
+	mth_salary:=mg_salary-v_pay.pf-v_pay.advance_tax;
+	DBMS_OUTPUT.PUT_LINE('Name:'||v_name);
+	DBMS_OUTPUT.PUT_LINE('Basic Salary:'||b_salary);
+	DBMS_OUTPUT.PUT_LINE('Regular Increment:'||v_pay.regular_increment);
+	DBMS_OUTPUT.PUT_LINE('Increased Basic Salary:'||ib_salary);
+	DBMS_OUTPUT.PUT_LINE('Performance Incentive:'||v_pay.performnce_incentive);
+	DBMS_OUTPUT.PUT_LINE('DA:'||v_pay.da);
+	DBMS_OUTPUT.PUT_LINE('PF:'||v_pay.pf);
+	DBMS_OUTPUT.PUT_LINE('Other incentive:'||v_pay.other_incentives);
+	DBMS_OUTPUT.PUT_LINE('Advance tax paid:'||v_pay.advance_tax);
+	DBMS_OUTPUT.PUT_LINE('Monthly Gross Salary:'||mg_salary);
+	DBMS_OUTPUT.PUT_LINE('Monthly Take home salary:'||mth_salary);	
+END;
+/
+Name:RAJESH
+Basic Salary:151500
+Regular Increment:3000
+Increased Basic Salary:154500
+Performance Incentive:
+DA:75750
+PF:18180
+Other incentive:450
+Advance tax paid:4000
+Monthly Gross Salary:
+Monthly Take home salary:
+
+PL/SQL procedure successfully completed.
+
+7.7
+SET SERVEROUTPUT ON
+DECLARE
+	v_name emp.name%TYPE;
+	b_salary emp.salary%TYPE;
+	r_i pay_check.regular_increment%TYPE;
+	ib_salary number;
+	p_i pay_check.performnce_incentive%TYPE;
+	v_da pay_check.da%TYPE;
+	v_pf pay_check.pf%TYPE;
+	o_i pay_check.other_incentives%TYPE;
+	a_t pay_check.advance_tax%TYPE;
+	mg_salary number;
+	mth_salary number;
+	CURSOR c7 IS SELECT e.name,e.salary,p.regular_increment,p.performnce_incentive,p.da,p.pf,p.other_incentives,p.advance_tax FROM emp e NATURAL JOIN pay_check p WHERE to_char(p.pay_date,'MM-YYYY')='01-2021';
+BEGIN
+	OPEN c7;
+	LOOP
+		FETCH c7 INTO v_name,b_salary,r_i,p_i,v_da,v_pf,o_i,a_t;
+		EXIT WHEN c7%NOTFOUND;
+		ib_salary:=b_salary+r_i;
+		v_da:=0.5*b_salary;
+		v_pf:=0.12*b_salary;
+		mg_salary:=ib_salary+p_i+v_da+v_pf+o_i;
+		mth_salary:=mg_salary-v_pf-a_t;
+		DBMS_OUTPUT.PUT_LINE('Name:'||v_name);
+		DBMS_OUTPUT.PUT_LINE('Basic Salary:'||b_salary);
+		DBMS_OUTPUT.PUT_LINE('Regular Increment:'||r_i);
+		DBMS_OUTPUT.PUT_LINE('Increased Basic Salary:'||ib_salary);
+		DBMS_OUTPUT.PUT_LINE('Performance Incentive:'||p_i);
+		DBMS_OUTPUT.PUT_LINE('DA:'||v_da);
+		DBMS_OUTPUT.PUT_LINE('PF:'||v_pf);
+		DBMS_OUTPUT.PUT_LINE('Other incentive:'||o_i);
+		DBMS_OUTPUT.PUT_LINE('Advance tax paid:'||a_t);
+		DBMS_OUTPUT.PUT_LINE('Monthly Gross Salary:'||mg_salary);
+		DBMS_OUTPUT.PUT_LINE('Monthly Take home salary:'||mth_salary);
+		DBMS_OUTPUT.PUT_LINE('--------------------------------------------');
+	END LOOP;
+	CLOSE c7;
+END;
+/
+
+7.8
+CREATE TABLE ACCOUNT(
+Account_Number int Primary Key,
+Balance Number(10,2) CONSTRAINT min_balance CHECK(Balance>=1000));
+
+INSERT INTO ACCOUNT VALUES (1001, 1500.00);
+INSERT INTO ACCOUNT VALUES (1002, 2500.00);
+INSERT INTO ACCOUNT VALUES (1003, 1800.00);
+INSERT INTO ACCOUNT VALUES (1004, 3000.00);
+INSERT INTO ACCOUNT VALUES (1005, 1200.00);
+INSERT INTO ACCOUNT VALUES (1006, 4500.00);
+INSERT INTO ACCOUNT VALUES (1007, 1700.00);
+
+SQL> Select * from account;
+
+ACCOUNT_NUMBER    BALANCE
+-------------- ----------
+          1001       1500
+          1002       2500
+          1003       1800
+          1004       3000
+          1005       1200
+          1006       4500
+          1007       1700
+
+7 rows selected.
+
+SET SERVEROUTPUT ON
+DECLARE
+	v_acc_num account.account_number%TYPE;
+	v_balance account.balance%TYPE;
+	withdraw number(10,2);		
+BEGIN
+	v_acc_num:=&v_acc_num;
+	SELECT account_number,balance INTO v_acc_num,v_balance FROM account WHERE account_number=v_acc_num;
+	withdraw:=&withdraw;
+	DBMS_OUTPUT.PUT_LINE('Current Balance: '||v_balance);
+	IF (v_balance-withdraw)>=1000 THEN
+		v_balance:=v_balance-withdraw;
+		UPDATE account SET balance=v_balance WHERE account_number=v_acc_num;
+		COMMIT;
+		DBMS_OUTPUT.PUT_LINE('Withdrawal of '||withdraw||' is Successful');
+	ELSE
+		DBMS_OUTPUT.PUT_LINE('Insufficient fund to withdraw, try with lesser withdrawal amount.');
+	END IF;
+END;
+/
+Enter value for v_acc_num: 1002
+old   6: v_acc_num:=&v_acc_num;
+new   6: v_acc_num:=1002;
+Enter value for withdraw: 300
+old   8: withdraw:=&withdraw;
+new   8: withdraw:=300;
+Current Balance: 2500
+Withdrawal of 300 is Successful
+
+PL/SQL procedure successfully completed.
+
+Enter value for v_acc_num: 1005
+old   8: v_acc_num:=&v_acc_num;
+new   8: v_acc_num:=1005;
+Enter value for withdraw: 300
+old  10: withdraw:=&withdraw;
+new  10: withdraw:=300;
+Current Balance: 1200
+Insufficient fund to withdraw, try with lesser withdrawal amount.
+
+PL/SQL procedure successfully completed.
+
+7.9
+SET SERVEROUTPUT ON
+DECLARE
+	pl_name emp.name%TYPE;
+	p_name prj_details.prj_name%TYPE;
+	CURSOR c9 IS SELECT e.name,p.prj_name FROM emp e JOIN prj_details p ON e.empcode=p.lead_by_emp_code WHERE p.actual_budget<p.budget_allocated;
+BEGIN
+	OPEN c9;
+	LOOP
+		FETCH c9 INTO pl_name,p_name;
+		EXIT WHEN c9%NOTFOUND;
+		DBMS_OUTPUT.PUT_LINE('Project Leader:'||pl_name);
+		DBMS_OUTPUT.PUT_LINE('Project Name:'||p_name);
+		DBMS_OUTPUT.PUT_LINE('-------------------------------');
+	END LOOP;
+	CLOSE c9;
+END;
+/
+Project Leader:BHASKAR
+Project Name:ZEUS
+-------------------------------
+Project Leader:BHASKAR
+Project Name:MARS
+-------------------------------
+Project Leader:VIJAY
+Project Name:SPYDER
+-------------------------------
+
+PL/SQL procedure successfully completed.
+
+7.10
+SET SERVEROUTPUT ON
+DECLARE
+	e_name emp.name%TYPE;
+	e_designation emp.designation%TYPE;
+	CURSOR c10 IS SELECT name,designation FROM emp;
+BEGIN
+	OPEN c10;
+	LOOP
+		FETCH c10 INTO e_name,e_designation;
+		EXIT WHEN c10%NOTFOUND;
+		DBMS_OUTPUT.PUT_LINE('Name: '||e_name);
+		DBMS_OUTPUT.PUT_LINE('Designation: '||e_designation);
+		DBMS_OUTPUT.PUT_LINE('Email Generated: '||LOWER(e_name)||'.'||LOWER(REPLACE(e_designation,' ',''))||'@digisoul.com');
+		DBMS_OUTPUT.PUT_LINE('----------------------------------------------------');
+	END LOOP;
+	CLOSE c10;
+END;
+/
+Name: PRASAD
+Designation: CEO
+Email Generated: prasad.ceo@digisoul.com
+----------------------------------------------------
+Name: BHASKAR
+Designation: PROJECT DIRECTOR
+Email Generated: bhaskar.projectdirector@digisoul.com
+----------------------------------------------------
+Name: RAVI
+Designation: PROJEACT LEADER
+Email Generated: ravi.projeactleader@digisoul.com
+----------------------------------------------------
+Name: VIJAY
+Designation: PROJECT MANAGER
+Email Generated: vijay.projectmanager@digisoul.com
+----------------------------------------------------
+Name: RAJ
+Designation: PRJOECT LEADER
+Email Generated: raj.prjoectleader@digisoul.com
+----------------------------------------------------
+Name: RAKESH
+Designation: TECHNICAL HEAD
+Email Generated: rakesh.technicalhead@digisoul.com
+----------------------------------------------------
+Name: AJAY
+Designation: TECHNICAL HEAD
+Email Generated: ajay.technicalhead@digisoul.com
+----------------------------------------------------
+Name: RAJESH
+Designation: DEVELOPER
+Email Generated: rajesh.developer@digisoul.com
+----------------------------------------------------
+Name: MANISH
+Designation: DEVELOPER
+Email Generated: manish.developer@digisoul.com
+----------------------------------------------------
+Name: RAKESH
+Designation: DEVELOPER
+Email Generated: rakesh.developer@digisoul.com
+----------------------------------------------------
+Name: ANIL
+Designation: DEVELOPER
+Email Generated: anil.developer@digisoul.com
+----------------------------------------------------
+Name: PRAVEEN
+Designation: DEVELOPER
+Email Generated: praveen.developer@digisoul.com
+----------------------------------------------------
+Name: RAJ
+Designation: DEVELOPER
+Email Generated: raj.developer@digisoul.com
+----------------------------------------------------
+
+PL/SQL procedure successfully completed.
+7.11
+SET SERVEROUTPUT ON
+DECLARE
+	v_acc_num account.account_number%TYPE;
+	v_balance account.balance%TYPE;
+	withdraw number(10,2);
+	ex_min_balance EXCEPTION;
+	PRAGMA EXCEPTION_INIT(ex_min_balance,-2290);
+BEGIN
+	v_acc_num:=&v_acc_num;
+	SELECT account_number,balance INTO v_acc_num,v_balance FROM account WHERE account_number=v_acc_num;
+	withdraw:=&withdraw;
+	DBMS_OUTPUT.PUT_LINE('Current Balance: '||v_balance);
+	v_balance:=v_balance-withdraw;
+	UPDATE account SET balance=v_balance WHERE account_number=v_acc_num;
+	COMMIT;
+	DBMS_OUTPUT.PUT_LINE('Withdrawal of '||withdraw||' is Successful');
+	DBMS_OUTPUT.PUT_LINE('Updated Current Balance:'||v_balance);
+EXCEPTION
+	WHEN ex_min_balance THEN
+		DBMS_OUTPUT.PUT_LINE('Insufficient fund to withdraw, try with lesser withdrawal amount.');
+	WHEN NO_DATA_FOUND THEN
+		DBMS_OUTPUT.PUT_LINE('Account number not found.');
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('Unexpected error: '||SQLERRM);
+END;
+/
+Enter value for v_acc_num: 1006
+old   8: v_acc_num:=&v_acc_num;
+new   8: v_acc_num:=1006;
+Enter value for withdraw: 2000
+old  10: withdraw:=&withdraw;
+new  10: withdraw:=2000;
+Current Balance: 4500
+Withdrawal of 2000 is Successful
+Updated Current Balance:2500
+
+Enter value for v_acc_num: 1006
+old   8: v_acc_num:=&v_acc_num;
+new   8: v_acc_num:=1006;
+Enter value for withdraw: 100
+old  10: withdraw:=&withdraw;
+new  10: withdraw:=100;
+Current Balance: 2500
+Withdrawal of 100 is Successful
+Updated Current Balance:2400
+
+Enter value for v_acc_num: 1005
+old   8: v_acc_num:=&v_acc_num;
+new   8: v_acc_num:=1005;
+Enter value for withdraw: 300
+old  10: withdraw:=&withdraw;
+new  10: withdraw:=300;
+Current Balance: 1200
+Insufficient fund to withdraw, try with lesser withdrawal amount.
+
+PL/SQL procedure successfully completed.
+
+Enter value for v_acc_num: 1010
+old   8: v_acc_num:=&v_acc_num;
+new   8: v_acc_num:=1010;
+Enter value for withdraw: 200
+old  10: withdraw:=&withdraw;
+new  10: withdraw:=200;
+Account number not found.
+
+PL/SQL procedure successfully completed.
+
+7.12
+SET SERVEROUTPUT ON
+DECLARE
+	e_name emp.name%TYPE;
+	s_skillname skill.skillname%TYPE;
+	ecode emp.empcode%TYPE;
+	CURSOR marvel(skill_exp number) IS SELECT e.empcode,e.name,s.skillname FROM emp e JOIN emp_skill e_s ON e.empcode=e_s.empno JOIN skill s ON 
+	e_s.skillid=s.skillid WHERE (e_s.skill_experience>=skill_exp) AND (s.skillname IN('Full stack','Oracle','AZURE'));
+BEGIN
+	OPEN marvel(12);
+	LOOP
+		FETCH marvel INTO ecode,e_name,s_skillname;
+		EXIT WHEN marvel%NOTFOUND;
+		DBMS_OUTPUT.PUT_LINE('Employee Code: '||ecode);
+		DBMS_OUTPUT.PUT_LINE('Employee Name: '||e_name);
+		DBMS_OUTPUT.PUT_LINE('Skill Name: '||s_skillname);
+		DBMS_OUTPUT.PUT_LINE('-----------------------------');
+	END LOOP;
+	CLOSE marvel;
+END;
+/
+Employee Code: 110
+Employee Name: BHASKAR
+Skill Name: Full stack
+-----------------------------
+Employee Code: 110
+Employee Name: BHASKAR
+Skill Name: Oracle
+-----------------------------
+Employee Code: 106
+Employee Name: RAJ
+Skill Name: Oracle
+-----------------------------
+Employee Code: 108
+Employee Name: AJAY
+Skill Name: Oracle
+-----------------------------
+Employee Code: 100
+Employee Name: RAJESH
+Skill Name: Full stack
+-----------------------------
+
+PL/SQL procedure successfully completed.
+
+7.13
+SET SERVEROUTPUT ON
+DECLARE
+	CURSOR c13(v_clientid varchar2,v_rating varchar2) IS SELECT e.empcode emp_code,e.name,e.designation FROM emp e JOIN work_exp w ON e.empcode=w.empcode WHERE v_clientid=TRIM(w.clientid) AND v_rating=w.rating;
+	v_found BOOLEAN:=FALSE;
+BEGIN
+	FOR i IN c13('&v_clientid','&v_rating')
+	LOOP
+		v_found:=True;
+		DBMS_OUTPUT.PUT_LINE('Employee Code: '|| i.emp_code);
+		DBMS_OUTPUT.PUT_LINE('Name: '|| i.name);
+		DBMS_OUTPUT.PUT_LINE('Designation: '|| i.designation);
+		DBMS_OUTPUT.PUT_LINE('------------------------------------');
+	END LOOP;
+	IF NOT v_found THEN
+		RAISE NO_DATA_FOUND;
+	END IF;
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+		DBMS_OUTPUT.PUT_LINE('No Records Found.');
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('Unexpected Errors: '||SQLERRM);
+END;
+/
+Enter value for v_clientid: C2
+Enter value for v_rating: B
+old   4: FOR i IN c13('&v_clientid','&v_rating')
+new   4: FOR i IN c13('C2','B')
+Employee Code: 102
+Name: VIJAY
+Designation: PROJECT MANAGER
+------------------------------------
+Employee Code: 105
+Name: MANISH
+Designation: DEVELOPER
+------------------------------------
+
+PL/SQL procedure successfully completed.
+
+7.14
+SET SERVEROUTPUT ON
+DECLARE
+	CURSOR c14 IS SELECT e.name, SUM(w.work_experience) total_experience FROM emp e JOIN work_exp w ON e.empcode=w.empcode GROUP BY e.name 
+	ORDER BY total_experience DESC;
+	counter int:=0;
+BEGIN
+	FOR i IN c14 LOOP
+		EXIT WHEN counter=5;
+		DBMS_OUTPUT.PUT_LINE('Employee Name: '||i.name);
+		DBMS_OUTPUT.PUT_LINE('Total Work Experience: '||i.total_experience);
+		DBMS_OUTPUT.PUT_LINE('---------------------------------');
+		counter:=counter+1;
+	END LOOP;
+END;
+/
+Employee Name: VIJAY
+Total Work Experience: 36
+---------------------------------
+Employee Name: RAJ
+Total Work Experience: 35
+---------------------------------
+Employee Name: RAJESH
+Total Work Experience: 35
+---------------------------------
+Employee Name: BHASKAR
+Total Work Experience: 28
+---------------------------------
+Employee Name: MANISH
+Total Work Experience: 19
+---------------------------------
+
+PL/SQL procedure successfully completed.
+		
